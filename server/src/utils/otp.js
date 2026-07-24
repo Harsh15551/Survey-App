@@ -6,10 +6,11 @@ const OTP_LENGTH = 6
 const OTP_EXPIRY_MINUTES = 5
 
 /**
- * Generate a 6-digit OTP (or use fixed dev OTP in development)
+ * Generate a 6-digit OTP.
+ * Uses fixed DEV_OTP when set (for testing), otherwise random.
  */
 function generateOtp() {
-  if (env.NODE_ENV === 'development') {
+  if (env.DEV_OTP) {
     return env.DEV_OTP
   }
   return crypto.randomInt(100000, 999999).toString()

@@ -19,7 +19,7 @@ const uploadRoutes = require('./modules/uploads/uploads.routes')
 const app = express()
 
 // Trust proxy (required for Render, Heroku, etc.)
-app.set('trust proxy', true)
+app.set('trust proxy', 1)
 
 // Core middleware
 app.use(cors({

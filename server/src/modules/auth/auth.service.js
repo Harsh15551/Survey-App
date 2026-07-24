@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const prisma = require('../../config/database')
+const env = require('../../config/env')
 const { signAccessToken, signRefreshToken, signCitizenToken, verifyRefreshToken } = require('../../utils/jwt')
 const { generateOtp, hashOtp, verifyOtp, getOtpExpiry } = require('../../utils/otp')
 
@@ -67,10 +68,10 @@ async function citizenRequestOtp(houseCode, phone) {
     }
   })
 
-  // In dev mode, return OTP in response for testing
+  // Return OTP in response when DEV_OTP is set (for testing)
   return {
     otpSent: true,
-    ...(process.env.NODE_ENV === 'development' && { devOtp: otp })
+    ...(env.DEV_OTP && { devOtp: otp })
   }
 }
 
