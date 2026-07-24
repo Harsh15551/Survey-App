@@ -1,0 +1,219 @@
+// Prisma schema for Veerbhadreshwar Trust Survey App
+// PostgreSQL 16 | houseCode as primary key for Household
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+  FIELD_AGENT
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum HouseholdStatus {
+  VERIFIED
+  FLAGGED
+}
+
+enum GrievanceStatus {
+  OPEN
+  RESOLVED
+}
+
+enum District {
+  GULBARGA
+  BIDAR
+}
+
+enum IncomeBracket {
+  BELOW_1_2L
+  BETWEEN_1_2L_3L
+  BETWEEN_3L_6L
+  ABOVE_6L
+}
+
+enum Occupation {
+  AGRICULTURE
+  DAILY_WAGE
+  GOVT_SERVICE
+  PRIVATE_SERVICE
+  BUSINESS
+  UNEMPLOYED
+  OTHER
+}
+
+enum ProblemOption {
+  WATER_SUPPLY
+  POWER_SUPPLY
+  ROAD_INFRA
+  HEALTHCARE
+  EDUCATION
+  DRAINAGE
+  UNEMPLOYMENT
+  CONNECTIVITY
+  OTHERS
+}
+
+enum SchemeOption {
+  PDS
+  UJJWALA
+  OLD_AGE_PENSION
+  DRINKING_WATER
+  HEALTH_SUBCENTRE
+  STREET_LIGHTING
+  HOUSING
+  SCHOLARSHIPS
+  OTHERS
+}
+
+// ---------------------------------------------------------------------------
+// User (Admin / Supervisor / Field Agent)
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String        @unique
+  passwordHash String        @map("password_hash")
+  role         Role
+  region       String
+  status       AccountStatus @default(ACTIVE)
+
+  // Self-relation: field_agent reports to supervisor
+  supervisorId String? @map("supervisor_id")
+  supervisor   User?   @relation("SupervisorAgents", fields: [supervisorId], references: [id])
+  agents       User[]  @relation("SupervisorAgents")
+
+  // Households created by this field agent
+  households Household[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Household — houseCode is the PRIMARY KEY
+// ---------------------------------------------------------------------------
+
+model Household {
+  houseCode String @id @map("house_code")
+
+  headName      String        @map("head_name")
+  phone         String
+  age           Int
+  gender        Gender
+  familySize    Int           @map("family_size")
+  occupation    Occupation
+  incomeBracket IncomeBracket @map("income_bracket")
+
+  district District
+  taluk    String
+
+  latitude  Decimal @db.Decimal(10, 7)
+  longitude Decimal @db.Decimal(10, 7)
+
+  // Optional photo
+  photoUrl String? @map("photo_url")
+
+  // Field agent who created this record
+  fieldAgentId String @map("field_agent_id")
+  fieldAgent   User   @relation(fields: [fieldAgentId], references: [id])
+
+  // Survey data stored as JSONB arrays
+  problems             ProblemOption[] 
+  grievanceDescription String?         @map("grievance_description")
+  schemes              SchemeOption[]
+  schemeFeedback       String?         @map("scheme_feedback")
+
+  status HouseholdStatus @default(VERIFIED)
+
+  // Related grievances filed by citizen
+  grievances Grievance[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([district, taluk])
+  @@map("households")
+}
+
+// ---------------------------------------------------------------------------
+// Grievance (citizen-submitted complaints)
+// ---------------------------------------------------------------------------
+
+model Grievance {
+  id        String          @id @default(cuid())
+  houseCode String          @map("house_code")
+  household Household       @relation(fields: [houseCode], references: [houseCode])
+  message   String          @db.Text
+  status    GrievanceStatus @default(OPEN)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([houseCode])
+  @@index([status])
+  @@map("grievances")
+}
+
+// ---------------------------------------------------------------------------
+// OTP Session (for citizen login)
+// ---------------------------------------------------------------------------
+
+model OtpSession {
+  id        String   @id @default(cuid())
+  houseCode String   @map("house_code")
+  phone     String
+  otpHash   String   @map("otp_hash")
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([houseCode, phone])
+  @@map("otp_sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Audit Log
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id       String  @id @default(cuid())
+  userId   String? @map("user_id")
+  action   String  // e.g. "household.edit", "user.deactivate"
+  entity   String  // e.g. "household", "user"
+  entityId String? @map("entity_id")
+  before   Json?
+  after    Json?
+  ip       String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}

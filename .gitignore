@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Build output
+dist/
+
+# Environment variables (never commit secrets)
+server/.env
+
+# Uploaded files (generated at runtime)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma
+server/prisma/migrations/

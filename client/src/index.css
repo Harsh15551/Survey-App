@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { font-family: 'Inter', system-ui, sans-serif; }
+
+* { -webkit-tap-highlight-color: transparent; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #b9c9d3; border-radius: 8px; }
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #c2661e;
+  outline-offset: 2px;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-ink-700 focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-clay-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-clay-600 focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-50 focus-ring disabled:opacity-50;
+  }
+  .field-label {
+    @apply block text-sm font-medium text-ink-700 mb-1.5;
+  }
+  .field-input {
+    @apply w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 focus-ring focus:border-ink-400;
+  }
+  .card {
+    @apply rounded-2xl border border-ink-100 bg-white shadow-sm;
+  }
+  .chip {
+    @apply flex items-center gap-2 rounded-lg border border-ink-200 px-3 py-2 text-sm text-ink-700 cursor-pointer transition-colors select-none;
+  }
+  .chip-selected {
+    @apply border-clay-400 bg-clay-50 text-clay-700;
+  }
+}
