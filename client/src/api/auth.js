@@ -15,25 +15,12 @@ export async function staffLogin(phone, password) {
 }
 
 /**
- * Citizen: request OTP for household login.
- * POST /api/auth/citizen/request-otp
+ * Citizen login: houseCode + phone -> JWT
+ * POST /api/auth/citizen/login
  */
-export async function citizenRequestOtp(houseCode, phone) {
+export async function citizenLogin(houseCode, phone) {
   try {
-    const data = await apiPost('/api/auth/citizen/request-otp', { houseCode, phone })
-    return { ok: true, devOtp: data.devOtp } // devOtp present in development only
-  } catch (err) {
-    return { ok: false, error: err.message }
-  }
-}
-
-/**
- * Citizen: verify OTP and get citizen token.
- * POST /api/auth/citizen/verify-otp
- */
-export async function citizenVerifyOtp(houseCode, phone, otp) {
-  try {
-    const data = await apiPost('/api/auth/citizen/verify-otp', { houseCode, phone, otp })
+    const data = await apiPost('/api/auth/citizen/login', { houseCode, phone })
     setToken(data.accessToken)
     return { ok: true, household: data.household }
   } catch (err) {

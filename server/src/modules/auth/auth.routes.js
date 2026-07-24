@@ -13,15 +13,9 @@ const loginSchema = z.object({
   password: z.string().min(4, 'Password must be at least 4 characters')
 })
 
-const citizenOtpSchema = z.object({
+const citizenLoginSchema = z.object({
   houseCode: z.string().min(1, 'House code is required'),
   phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits')
-})
-
-const citizenVerifySchema = z.object({
-  houseCode: z.string().min(1, 'House code is required'),
-  phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits'),
-  otp: z.string().length(6, 'OTP must be 6 digits')
 })
 
 const refreshSchema = z.object({
@@ -30,8 +24,7 @@ const refreshSchema = z.object({
 
 // Routes
 router.post('/login', authLimiter, validate(loginSchema), controller.login)
-router.post('/citizen/request-otp', authLimiter, validate(citizenOtpSchema), controller.citizenRequestOtp)
-router.post('/citizen/verify-otp', authLimiter, validate(citizenVerifySchema), controller.citizenVerifyOtp)
+router.post('/citizen/login', authLimiter, validate(citizenLoginSchema), controller.citizenLogin)
 router.post('/refresh', validate(refreshSchema), controller.refresh)
 router.post('/logout', authenticate, controller.logout)
 

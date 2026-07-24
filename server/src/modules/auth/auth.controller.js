@@ -22,20 +22,10 @@ async function login(req, res, next) {
   }
 }
 
-async function citizenRequestOtp(req, res, next) {
+async function citizenLogin(req, res, next) {
   try {
     const { houseCode, phone } = req.body
-    const result = await authService.citizenRequestOtp(houseCode, phone)
-    res.json(result)
-  } catch (err) {
-    next(err)
-  }
-}
-
-async function citizenVerifyOtp(req, res, next) {
-  try {
-    const { houseCode, phone, otp } = req.body
-    const result = await authService.citizenVerifyOtp(houseCode, phone, otp)
+    const result = await authService.citizenLogin(houseCode, phone)
     res.json(result)
   } catch (err) {
     next(err)
@@ -68,4 +58,4 @@ async function logout(req, res) {
   res.json({ message: 'Logged out successfully.' })
 }
 
-module.exports = { login, citizenRequestOtp, citizenVerifyOtp, refresh, logout }
+module.exports = { login, citizenLogin, refresh, logout }

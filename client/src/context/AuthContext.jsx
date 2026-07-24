@@ -31,13 +31,9 @@ export function AuthProvider({ children }) {
     return { ok: true, user }
   }
 
-  // Citizen login: house_id (username) + phone (password) + OTP -------------
-  async function citizenRequestOtp(houseId, phone) {
-    return authApi.citizenRequestOtp(houseId, phone)
-  }
-
-  async function citizenVerifyOtp(houseId, phone, otp) {
-    const result = await authApi.citizenVerifyOtp(houseId, phone, otp)
+  // Citizen login: houseCode + phone -> instant access --------------------
+  async function citizenLogin(houseId, phone) {
+    const result = await authApi.citizenLogin(houseId, phone)
     if (!result.ok) return result
     setSession({ type: 'citizen', houseId, phone, household: result.household })
     return { ok: true }
@@ -55,8 +51,7 @@ export function AuthProvider({ children }) {
     user: session?.type === 'staff' ? session.user : null,
     isAuthenticated: !!session && !!getAccessToken(),
     staffLogin,
-    citizenRequestOtp,
-    citizenVerifyOtp,
+    citizenLogin,
     logout: handleLogout
   }), [session, handleLogout])
 
