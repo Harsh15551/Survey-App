@@ -7,6 +7,10 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://survey-app-api-0u07.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
