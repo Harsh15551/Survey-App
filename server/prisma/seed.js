@@ -143,7 +143,6 @@ async function main() {
 
   // Clean existing data
   await prisma.grievance.deleteMany()
-  await prisma.otpSession.deleteMany()
   await prisma.auditLog.deleteMany()
   await prisma.household.deleteMany()
   await prisma.user.deleteMany()
@@ -180,7 +179,7 @@ async function main() {
   console.log('  Admin:        phone=9900011122  password=demo1234')
   console.log('  Supervisor:   phone=9900022233  password=demo1234')
   console.log('  Field Agent:  phone=9900044455  password=demo1234')
-  console.log('\nCitizen login: houseCode=100001, phone=9810000000, OTP=123456 (dev mode)')
+  console.log('\nCitizen login: houseCode=100001, phone=9810000000')
 }
 
 main()
