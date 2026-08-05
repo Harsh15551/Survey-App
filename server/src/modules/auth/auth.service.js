@@ -36,19 +36,21 @@ async function staffLogin(phone, password) {
 }
 
 /**
- * Citizen login: houseCode + phone -> JWT
+ * Citizen login: houseCode + 8-digit password -> JWT
  */
-async function citizenLogin(houseCode, phone) {
+async function citizenLogin(houseCode, password) {
   const household = await prisma.household.findUnique({ where: { houseCode } })
   if (!household) {
-    throw { status: 404, expose: true, message: 'House code not found. Check the QR plate and try again.' }
+    throw { status: 404, expose: true, message: 'QR ID not found. Check the QR plate and try again.' }
   }
-  if (household.phone !== phone) {
-    throw { status: 403, expose: true, message: 'Phone number does not match our records for this house code.' }
+  const valid = await bcrypt.compare(password, household.citizenPasswordHash)
+  if (!valid) {
+    throw { status: 403, expose: true, message: 'Incorrect password.' }
   }
 
-  const accessToken = signCitizenToken(houseCode, phone)
-  return { accessToken, houseCode, phone, household }
+  const { citizenPasswordHash, ...safeHousehold } = household
+  const accessToken = signCitizenToken(houseCode, household.phone)
+  return { accessToken, houseCode, phone: household.phone, household: safeHousehold }
 }
 
 /**

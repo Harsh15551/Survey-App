@@ -25,12 +25,6 @@ enum AccountStatus {
   INACTIVE
 }
 
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
 enum HouseholdStatus {
   VERIFIED
   FLAGGED
@@ -46,11 +40,27 @@ enum District {
   BIDAR
 }
 
+enum PropertyType {
+  OWN_HOUSE
+  RENTED_HOUSE
+  GOVERNMENT_PROVIDED_HOUSE
+  OTHERS
+}
+
+enum FamilySizeBand {
+  ONE_TO_THREE
+  FOUR_TO_SIX
+  SEVEN_TO_TEN
+  ABOVE_TEN
+}
+
 enum IncomeBracket {
-  BELOW_1_2L
-  BETWEEN_1_2L_3L
-  BETWEEN_3L_6L
-  ABOVE_6L
+  BELOW_5000
+  BETWEEN_5_10K
+  BETWEEN_10_20K
+  BETWEEN_20_50K
+  BETWEEN_50_100K
+  ABOVE_100K
 }
 
 enum Occupation {
@@ -75,15 +85,20 @@ enum ProblemOption {
   OTHERS
 }
 
-enum SchemeOption {
-  PDS
-  UJJWALA
-  OLD_AGE_PENSION
+enum FacilityOption {
   DRINKING_WATER
-  HEALTH_SUBCENTRE
-  STREET_LIGHTING
-  HOUSING
-  SCHOLARSHIPS
+  ELECTRICITY
+  LPG_GAS
+  DRAINAGE_SEWAGE
+  NONE
+}
+
+enum GovtSchemeOption {
+  HOUSING_SCHEME
+  PENSION_SCHEME
+  RATION_CARD
+  SCHOLARSHIP
+  HEALTH_INSURANCE
   OTHERS
 }
 
@@ -99,13 +114,12 @@ model User {
   role         Role
   region       String
   status       AccountStatus @default(ACTIVE)
+  plainPassword String?       @map("plain_password")
 
-  // Self-relation: field_agent reports to supervisor
   supervisorId String? @map("supervisor_id")
   supervisor   User?   @relation("SupervisorAgents", fields: [supervisorId], references: [id])
   agents       User[]  @relation("SupervisorAgents")
 
-  // Households created by this field agent
   households Household[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -121,36 +135,42 @@ model User {
 model Household {
   houseCode String @id @map("house_code")
 
-  headName      String        @map("head_name")
+  headName      String  @map("head_name")
   phone         String
-  age           Int
-  gender        Gender
-  familySize    Int           @map("family_size")
-  occupation    Occupation
-  incomeBracket IncomeBracket @map("income_bracket")
+  email         String?
+  alternatePhone String? @map("alternate_phone")
 
-  district District
-  taluk    String
+  state         String  @default("Karnataka")
+  propertyType  PropertyType @map("property_type")
+  district      District
+  taluk         String
+  villageName   String  @map("village_name")
+  wardPanchayat String  @map("ward_panchayat")
+  houseNumber   String  @map("house_number")
 
-  latitude  Decimal @db.Decimal(10, 7)
-  longitude Decimal @db.Decimal(10, 7)
+  headAge         Int           @map("head_age")
+  familySizeBand  FamilySizeBand @map("family_size_band")
+  familySize      Int?          @map("family_size")
+  occupation      Occupation
+  incomeBracket   IncomeBracket @map("income_bracket")
 
-  // Optional photo
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
+
   photoUrl String? @map("photo_url")
 
-  // Field agent who created this record
   fieldAgentId String @map("field_agent_id")
   fieldAgent   User   @relation(fields: [fieldAgentId], references: [id])
 
-  // Survey data stored as JSONB arrays
-  problems             ProblemOption[] 
-  grievanceDescription String?         @map("grievance_description")
-  schemes              SchemeOption[]
-  schemeFeedback       String?         @map("scheme_feedback")
+  facilities           FacilityOption[]
+  problems             ProblemOption[]
+  grievanceDescription String?          @map("grievance_description") @db.Text
+  govtSchemesAvailed   GovtSchemeOption[] @map("govt_schemes_availed")
+
+  citizenPasswordHash String @map("citizen_password_hash")
 
   status HouseholdStatus @default(VERIFIED)
 
-  // Related grievances filed by citizen
   grievances Grievance[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -186,8 +206,8 @@ model Grievance {
 model AuditLog {
   id       String  @id @default(cuid())
   userId   String? @map("user_id")
-  action   String  // e.g. "household.edit", "user.deactivate"
-  entity   String  // e.g. "household", "user"
+  action   String
+  entity   String
   entityId String? @map("entity_id")
   before   Json?
   after    Json?

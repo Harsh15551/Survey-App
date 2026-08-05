@@ -15,12 +15,12 @@ export async function staffLogin(phone, password) {
 }
 
 /**
- * Citizen login: houseCode + phone -> JWT
+ * Citizen login: houseCode + 8-digit password -> JWT
  * POST /api/auth/citizen/login
  */
-export async function citizenLogin(houseCode, phone) {
+export async function citizenLogin(houseCode, password) {
   try {
-    const data = await apiPost('/api/auth/citizen/login', { houseCode, phone })
+    const data = await apiPost('/api/auth/citizen/login', { houseCode, password })
     setToken(data.accessToken)
     return { ok: true, household: data.household }
   } catch (err) {

@@ -20,7 +20,7 @@ async function getUsers(query) {
       where,
       select: {
         id: true, name: true, phone: true, role: true, region: true, status: true,
-        supervisorId: true, createdAt: true,
+        supervisorId: true, createdAt: true, plainPassword: true,
         supervisor: { select: { id: true, name: true } }
       },
       skip,
@@ -38,7 +38,7 @@ async function getUserById(id) {
     where: { id },
     include: {
       supervisor: { select: { id: true, name: true } },
-      agents: { select: { id: true, name: true, phone: true, status: true } }
+      agents: { select: { id: true, name: true, phone: true, status: true, plainPassword: true } }
     }
   })
   if (!user) throw { status: 404, expose: true, message: 'User not found.' }
@@ -46,8 +46,8 @@ async function getUserById(id) {
 }
 
 async function createUser(data) {
-  // Generate a temporary password (phone last 4 digits + year)
-  const tempPassword = data.phone.slice(-4) + new Date().getFullYear()
+  // Use custom password if provided, else generate temporary password (phone last 4 digits + year)
+  const tempPassword = (data.password && data.password.trim()) || (data.phone.slice(-4) + new Date().getFullYear())
   const passwordHash = await bcrypt.hash(tempPassword, 10)
 
   const user = await prisma.user.create({
@@ -55,16 +55,16 @@ async function createUser(data) {
       name: data.name,
       phone: data.phone,
       passwordHash,
+      plainPassword: tempPassword,
       role: data.role.toUpperCase().replace(' ', '_'),
       region: data.region || '',
       supervisorId: data.supervisorId || null
     },
     select: {
-      id: true, name: true, phone: true, role: true, region: true, status: true, createdAt: true
+      id: true, name: true, phone: true, role: true, region: true, status: true, plainPassword: true, createdAt: true
     }
   })
 
-  // In production: send temp password via SMS
   return { ...user, tempPassword }
 }
 

@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext'
+import LanguageSwitcher from '../ui/LanguageSwitcher'
 
 export default function TopBar({ title, subtitle }) {
   const { logout, user } = useAuth()
@@ -10,6 +11,7 @@ export default function TopBar({ title, subtitle }) {
         {subtitle && <p className="text-sm text-ink-500">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3">
+        <LanguageSwitcher />
         <div className="hidden text-right sm:block">
           <p className="text-sm font-medium text-ink-800">{user?.name}</p>
           <p className="text-xs text-ink-400">{user?.phone}</p>

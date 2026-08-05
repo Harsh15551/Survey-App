@@ -24,8 +24,8 @@ async function login(req, res, next) {
 
 async function citizenLogin(req, res, next) {
   try {
-    const { houseCode, phone } = req.body
-    const result = await authService.citizenLogin(houseCode, phone)
+    const { houseCode, password } = req.body
+    const result = await authService.citizenLogin(houseCode, password)
     res.json(result)
   } catch (err) {
     next(err)
