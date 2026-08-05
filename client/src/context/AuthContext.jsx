@@ -31,11 +31,11 @@ export function AuthProvider({ children }) {
     return { ok: true, user }
   }
 
-  // Citizen login: houseCode + phone -> instant access --------------------
-  async function citizenLogin(houseId, phone) {
-    const result = await authApi.citizenLogin(houseId, phone)
+  // Citizen login: houseCode + password -----------------------------------
+  async function citizenLogin(houseId, password) {
+    const result = await authApi.citizenLogin(houseId, password)
     if (!result.ok) return result
-    setSession({ type: 'citizen', houseId, phone, household: result.household })
+    setSession({ type: 'citizen', houseId, household: result.household })
     return { ok: true }
   }
 

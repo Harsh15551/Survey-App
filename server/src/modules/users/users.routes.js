@@ -14,7 +14,8 @@ const createUserSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits'),
   role: z.enum(['SUPERVISOR', 'FIELD_AGENT', 'supervisor', 'field_agent']),
   region: z.string().optional(),
-  supervisorId: z.string().optional().nullable()
+  supervisorId: z.string().optional().nullable(),
+  password: z.string().min(4, 'Password must be at least 4 characters').optional().nullable().or(z.literal(''))
 })
 
 const updateUserSchema = z.object({

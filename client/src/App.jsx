@@ -13,10 +13,12 @@ import AdminHouseholds from './pages/admin/AdminHouseholds'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminQrCodes from './pages/admin/AdminQrCodes'
 import AdminSupervisors from './pages/admin/AdminSupervisors'
+import AdminGrievances from './pages/admin/AdminGrievances'
 
 import SupervisorDashboard from './pages/supervisor/SupervisorDashboard'
 import SupervisorTeam from './pages/supervisor/SupervisorTeam'
 import SupervisorSurveys from './pages/supervisor/SupervisorSurveys'
+import SupervisorGrievances from './pages/supervisor/SupervisorGrievances'
 
 import FieldAgentHome from './pages/field-agent/FieldAgentHome'
 import NewSurvey from './pages/field-agent/NewSurvey'
@@ -59,6 +61,7 @@ export default function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/supervisors" element={<AdminSupervisors />} />
         <Route path="/admin/qr-codes" element={<AdminQrCodes />} />
+        <Route path="/admin/grievances" element={<AdminGrievances />} />
       </Route>
 
       {/* Supervisor admin */}
@@ -66,6 +69,7 @@ export default function App() {
         <Route path="/supervisor" element={<SupervisorDashboard />} />
         <Route path="/supervisor/team" element={<SupervisorTeam />} />
         <Route path="/supervisor/surveys" element={<SupervisorSurveys />} />
+        <Route path="/supervisor/grievances" element={<SupervisorGrievances />} />
       </Route>
 
       {/* Field agent */}

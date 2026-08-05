@@ -8,7 +8,7 @@ router.use(authenticate, requireRoles(['admin']))
 router.get('/households/csv', async (req, res, next) => {
   try {
     const where = {}
-    if (req.query.district) where.district = req.query.district
+    if (req.query.district) where.district = req.query.district.toUpperCase()
     if (req.query.status) where.status = req.query.status.toUpperCase()
 
     const households = await prisma.household.findMany({
@@ -18,17 +18,22 @@ router.get('/households/csv', async (req, res, next) => {
     })
 
     const headers = [
-      'House Code', 'Head Name', 'Phone', 'District', 'Taluk', 'Age', 'Gender',
-      'Family Size', 'Occupation', 'Income Bracket', 'Latitude', 'Longitude',
-      'Problems', 'Grievance', 'Schemes', 'Scheme Feedback', 'Status',
+      'House Code', 'Head Name', 'Phone', 'Email', 'State', 'District', 'Taluk',
+      'Village', 'Ward/Panchayat', 'House Number', 'Property Type',
+      'Head Age', 'Family Size Band', 'Occupation', 'Income Bracket',
+      'Facilities', 'Latitude', 'Longitude',
+      'Problems', 'Grievance', 'Govt Schemes', 'Status',
       'Field Agent', 'Surveyed On'
     ]
 
     const rows = households.map(h => [
-      h.houseCode, h.headName, h.phone, h.district, h.taluk, h.age, h.gender,
-      h.familySize, h.occupation, h.incomeBracket, h.latitude, h.longitude,
+      h.houseCode, h.headName, h.phone, h.email || '', h.state || '',
+      h.district, h.taluk, h.villageName || '', h.wardPanchayat || '',
+      h.houseNumber || '', h.propertyType || '', h.headAge ?? '',
+      h.familySizeBand || '', h.occupation || '', h.incomeBracket || '',
+      (h.facilities || []).join('; '), h.latitude ?? '', h.longitude ?? '',
       (h.problems || []).join('; '), h.grievanceDescription || '',
-      (h.schemes || []).join('; '), h.schemeFeedback || '', h.status,
+      (h.govtSchemesAvailed || []).join('; '), h.status,
       h.fieldAgent?.name || '', new Date(h.createdAt).toLocaleDateString()
     ])
 
@@ -42,7 +47,6 @@ router.get('/households/csv', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-// PDF export placeholder (would use puppeteer or pdfkit in production)
 router.get('/households/pdf', async (req, res) => {
   res.status(501).json({ error: 'PDF export not yet implemented. Use CSV export instead.' })
 })

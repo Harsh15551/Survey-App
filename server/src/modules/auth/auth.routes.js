@@ -15,7 +15,7 @@ const loginSchema = z.object({
 
 const citizenLoginSchema = z.object({
   houseCode: z.string().min(1, 'House code is required'),
-  phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits')
+  password: z.string().regex(/^\d{8}$/, 'Password must be 8 digits')
 })
 
 const refreshSchema = z.object({

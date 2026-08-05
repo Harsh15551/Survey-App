@@ -4,7 +4,7 @@ import Badge from '../../components/ui/Badge'
 import Modal from '../../components/ui/Modal'
 import { getUsers, createUser, updateUser } from '../../api/users'
 
-const EMPTY_FORM = { name: '', phone: '', role: 'field_agent', region: '', supervisorId: '' }
+const EMPTY_FORM = { name: '', phone: '', role: 'field_agent', region: '', supervisorId: '', password: '' }
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
@@ -48,7 +48,8 @@ export default function AdminUsers() {
         phone: form.phone,
         role: form.role.toUpperCase(),
         region: form.region,
-        supervisorId: form.role === 'field_agent' ? form.supervisorId || null : null
+        supervisorId: form.role === 'field_agent' ? form.supervisorId || null : null,
+        password: form.password || null
       })
       setForm(EMPTY_FORM)
       setShowCreate(false)
@@ -86,6 +87,7 @@ export default function AdminUsers() {
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Password</th>
                 <th className="px-4 py-3">Region</th>
                 <th className="px-4 py-3">Reports to</th>
                 <th className="px-4 py-3">Status</th>
@@ -98,6 +100,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 font-medium text-ink-900">{u.name}</td>
                   <td className="px-4 py-3 capitalize text-ink-600">{u.role.replace('_', ' ')}</td>
                   <td className="px-4 py-3 text-ink-600">{u.phone}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-ink-500">{u.plainPassword || 'demo1234'}</td>
                   <td className="px-4 py-3 text-ink-600">{u.region}</td>
                   <td className="px-4 py-3 text-ink-600">{supervisors.find(s => s.id === u.supervisorId)?.name || '—'}</td>
                   <td className="px-4 py-3"><Badge status={u.status} /></td>
@@ -122,6 +125,10 @@ export default function AdminUsers() {
           <div>
             <label className="field-label">Phone number</label>
             <input required className="field-input" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+          </div>
+          <div>
+            <label className="field-label">Password (Optional)</label>
+            <input className="field-input" placeholder="Leave blank for default password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
           </div>
           <div>
             <label className="field-label">Role</label>

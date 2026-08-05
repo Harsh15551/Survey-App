@@ -2,49 +2,73 @@ const { Router } = require('express')
 
 const router = Router()
 
-// ---------------------------------------------------------------------------
-// Label maps (enum value → human-readable label)
-// ---------------------------------------------------------------------------
-
 const OCCUPATIONS = [
-  { id: 'AGRICULTURE', label: 'Agriculture / farming' },
-  { id: 'DAILY_WAGE', label: 'Daily wage labour' },
-  { id: 'GOVT_SERVICE', label: 'Government service' },
-  { id: 'PRIVATE_SERVICE', label: 'Private service' },
-  { id: 'BUSINESS', label: 'Business / self-employed' },
+  { id: 'AGRICULTURE', label: 'Farmer' },
+  { id: 'DAILY_WAGE', label: 'Daily wage worker' },
+  { id: 'BUSINESS', label: 'Business' },
+  { id: 'GOVT_SERVICE', label: 'Government Job' },
+  { id: 'PRIVATE_SERVICE', label: 'Private Job' },
   { id: 'UNEMPLOYED', label: 'Unemployed' },
   { id: 'OTHER', label: 'Other' }
 ]
 
 const INCOME_BRACKETS = [
-  { id: 'BELOW_1_2L', label: 'Below ₹1,20,000 per annum' },
-  { id: 'BETWEEN_1_2L_3L', label: '₹1,20,000 – ₹3,00,000 per annum' },
-  { id: 'BETWEEN_3L_6L', label: '₹3,00,000 – ₹6,00,000 per annum' },
-  { id: 'ABOVE_6L', label: 'Above ₹6,00,000 per annum' }
+  { id: 'BELOW_5000', label: 'Below Rs. 5,000' },
+  { id: 'BETWEEN_5_10K', label: 'Rs. 5,001 - Rs. 10,000' },
+  { id: 'BETWEEN_10_20K', label: 'Rs. 10,001 - Rs. 20,000' },
+  { id: 'BETWEEN_20_50K', label: 'Rs. 20,001 - Rs. 50,000' },
+  { id: 'BETWEEN_50_100K', label: 'Rs. 50,001 - Rs. 1,00,000' },
+  { id: 'ABOVE_100K', label: 'Above Rs. 1,00,000' }
 ]
 
 const PROBLEMS = [
-  { id: 'WATER_SUPPLY', label: 'Water supply' },
-  { id: 'POWER_SUPPLY', label: 'Power supply' },
-  { id: 'ROAD_INFRA', label: 'Road infrastructure' },
-  { id: 'HEALTHCARE', label: 'Healthcare access' },
-  { id: 'EDUCATION', label: 'Schooling & education' },
-  { id: 'DRAINAGE', label: 'Drainage & sanitation' },
+  { id: 'WATER_SUPPLY', label: 'Water Scarcity' },
+  { id: 'POWER_SUPPLY', label: 'Electricity Issue' },
+  { id: 'ROAD_INFRA', label: 'Road/connectivity issue' },
+  { id: 'HEALTHCARE', label: 'Hospital Connectivity Issues' },
+  { id: 'EDUCATION', label: 'School No Provision' },
   { id: 'UNEMPLOYMENT', label: 'Unemployment' },
-  { id: 'CONNECTIVITY', label: 'Internet / connectivity' },
+  { id: 'DRAINAGE', label: 'Drainage/Sewage Issues' },
   { id: 'OTHERS', label: 'Others' }
 ]
 
-const SCHEMES = [
-  { id: 'PDS', label: 'PDS ration card' },
-  { id: 'UJJWALA', label: 'Free cooking gas (Ujjwala)' },
-  { id: 'OLD_AGE_PENSION', label: 'Old age pension' },
-  { id: 'DRINKING_WATER', label: 'Drinking water supply' },
-  { id: 'HEALTH_SUBCENTRE', label: 'Primary health sub-centre' },
-  { id: 'STREET_LIGHTING', label: 'Street lighting' },
-  { id: 'HOUSING', label: 'Housing scheme (AWAS)' },
-  { id: 'SCHOLARSHIPS', label: 'Scholarships' },
+const PROPERTY_TYPES = [
+  { id: 'OWN_HOUSE', label: 'Own House' },
+  { id: 'RENTED_HOUSE', label: 'Rented House' },
+  { id: 'GOVERNMENT_PROVIDED_HOUSE', label: 'Government Provided House' },
   { id: 'OTHERS', label: 'Others' }
+]
+
+const FAMILY_SIZE_BANDS = [
+  { id: 'ONE_TO_THREE', label: '1-3' },
+  { id: 'FOUR_TO_SIX', label: '4-6' },
+  { id: 'SEVEN_TO_TEN', label: '7-10' },
+  { id: 'ABOVE_TEN', label: '10 or more' }
+]
+
+const FACILITIES = [
+  { id: 'DRINKING_WATER', label: 'Drinking Water' },
+  { id: 'ELECTRICITY', label: 'Electricity' },
+  { id: 'LPG_GAS', label: 'LPG Gas' },
+  { id: 'DRAINAGE_SEWAGE', label: 'Drainage/Sewage Facility' },
+  { id: 'NONE', label: 'Nothing' }
+]
+
+const GOVT_SCHEMES = [
+  { id: 'HOUSING_SCHEME', label: 'Housing Facility/Scheme' },
+  { id: 'PENSION_SCHEME', label: 'Pension Scheme' },
+  { id: 'RATION_CARD', label: 'Ration Card Facility' },
+  { id: 'SCHOLARSHIP', label: 'Scholarship' },
+  { id: 'HEALTH_INSURANCE', label: 'Health Insurance Scheme' },
+  { id: 'OTHERS', label: 'Others' }
+]
+
+const STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat',
+  'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh',
+  'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan',
+  'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Puducherry', 'Chandigarh'
 ]
 
 const DISTRICTS = [
@@ -70,9 +94,17 @@ const EMERGENCY_NUMBERS = [
   { label: 'National toll-free (health)', number: '1075' }
 ]
 
-// All reference data is public (no auth needed)
 router.get('/options', (req, res) => {
-  res.json({ problems: PROBLEMS, schemes: SCHEMES, occupations: OCCUPATIONS, incomeBrackets: INCOME_BRACKETS })
+  res.json({
+    problems: PROBLEMS,
+    occupations: OCCUPATIONS,
+    incomeBrackets: INCOME_BRACKETS,
+    propertyTypes: PROPERTY_TYPES,
+    familySizeBands: FAMILY_SIZE_BANDS,
+    facilities: FACILITIES,
+    govtSchemes: GOVT_SCHEMES,
+    states: STATES
+  })
 })
 
 router.get('/locations', (req, res) => {
