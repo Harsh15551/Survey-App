@@ -46,6 +46,11 @@ async function getUserById(id) {
 }
 
 async function createUser(data) {
+  const existing = await prisma.user.findUnique({ where: { phone: data.phone } })
+  if (existing) {
+    throw { status: 400, expose: true, message: 'A user with this phone number is already registered.' }
+  }
+
   // Use custom password if provided, else generate temporary password (phone last 4 digits + year)
   const tempPassword = (data.password && data.password.trim()) || (data.phone.slice(-4) + new Date().getFullYear())
   const passwordHash = await bcrypt.hash(tempPassword, 10)
